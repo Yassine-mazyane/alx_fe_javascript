@@ -89,8 +89,32 @@ function createAddQuoteForm() {
   container.appendChild(addBtn);
 }
 
-// Add new quote and update filter
-function addQuote() {
+// POST quote to mock server
+async function postQuoteToServer(quote) {
+  try {
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(quote)
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.json();
+    console.log("Quote posted to server:", data);
+    return data;
+  } catch (error) {
+    console.error("Failed to post quote:", error);
+    alert("Failed to send quote to server.");
+  }
+}
+
+// Add new quote and POST to server
+async function addQuote() {
   const text = document.getElementById("newQuoteText").value.trim();
   const category = document.getElementById("newQuoteCategory").value.trim();
 
@@ -99,10 +123,15 @@ function addQuote() {
     return;
   }
 
-  quotes.push({ text, category });
+  const newQuote = { text, category };
+
+  quotes.push(newQuote);
   saveQuotes();
   populateCategories();
   alert("Quote added!");
+
+  // Post quote to server (mock)
+  await postQuoteToServer(newQuote);
 
   document.getElementById("newQuoteText").value = '';
   document.getElementById("newQuoteCategory").value = '';
@@ -164,7 +193,7 @@ function notifyUser(message) {
   }, 4000);
 }
 
-// ✅ Fetch real server data using async/await
+// Fetch real server data using async/await
 async function fetchQuotesFromServer() {
   try {
     const response = await fetch("https://jsonplaceholder.typicode.com/posts");
@@ -183,7 +212,7 @@ async function fetchQuotesFromServer() {
   }
 }
 
-// ✅ Sync with server (with conflict resolution)
+// Sync with server (with conflict resolution)
 async function syncWithServer() {
   const serverQuotes = await fetchQuotesFromServer();
 
@@ -212,5 +241,5 @@ createAddQuoteForm();
 filterQuotes();
 showLastViewedQuote();
 
-// ✅ Auto-sync every 30 seconds
+// Auto-sync every 30 seconds
 setInterval(syncWithServer, 30000);
