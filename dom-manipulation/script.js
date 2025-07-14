@@ -213,7 +213,7 @@ async function fetchQuotesFromServer() {
 }
 
 // Sync with server (with conflict resolution)
-async function syncWithServer() {
+async function syncQuotes() {
   const serverQuotes = await fetchQuotesFromServer();
 
   const newQuotes = serverQuotes.filter(serverQuote =>
@@ -242,4 +242,4 @@ filterQuotes();
 showLastViewedQuote();
 
 // Auto-sync every 30 seconds
-setInterval(syncWithServer, 30000);
+setInterval(syncQuotes, 30000);
