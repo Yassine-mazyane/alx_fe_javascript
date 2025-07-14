@@ -164,36 +164,42 @@ function notifyUser(message) {
   }, 4000);
 }
 
-// Simulate server fetch (replace with real API if needed)
-function fetchQuotesFromServer() {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      const serverQuotes = [
-        { text: "Knowledge is power.", category: "Wisdom" },
-        { text: "Time is money.", category: "Motivation" }
-      ];
-      resolve(serverQuotes);
-    }, 1000);
-  });
+// ✅ Fetch real server data using async/await
+async function fetchQuotesFromServer() {
+  try {
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts");
+    const data = await response.json();
+
+    // Simulate quotes using post titles
+    const serverQuotes = data.slice(0, 10).map(post => ({
+      text: post.title,
+      category: "Server"
+    }));
+
+    return serverQuotes;
+  } catch (error) {
+    console.error("Failed to fetch server quotes:", error);
+    return [];
+  }
 }
 
-// Sync with server and handle conflicts
-function syncWithServer() {
-  fetchQuotesFromServer().then(serverQuotes => {
-    let newQuotes = serverQuotes.filter(serverQuote =>
-      !quotes.some(localQuote =>
-        localQuote.text === serverQuote.text &&
-        localQuote.category === serverQuote.category
-      )
-    );
+// ✅ Sync with server (with conflict resolution)
+async function syncWithServer() {
+  const serverQuotes = await fetchQuotesFromServer();
 
-    if (newQuotes.length > 0) {
-      quotes.push(...newQuotes);
-      saveQuotes();
-      populateCategories();
-      notifyUser("New quotes have been synced from the server.");
-    }
-  });
+  const newQuotes = serverQuotes.filter(serverQuote =>
+    !quotes.some(localQuote =>
+      localQuote.text === serverQuote.text &&
+      localQuote.category === serverQuote.category
+    )
+  );
+
+  if (newQuotes.length > 0) {
+    quotes.push(...newQuotes);
+    saveQuotes();
+    populateCategories();
+    notifyUser("New quotes have been synced from the server.");
+  }
 }
 
 // Setup event listeners and init
@@ -206,5 +212,5 @@ createAddQuoteForm();
 filterQuotes();
 showLastViewedQuote();
 
-// Sync with server every 30 seconds
+// ✅ Auto-sync every 30 seconds
 setInterval(syncWithServer, 30000);
