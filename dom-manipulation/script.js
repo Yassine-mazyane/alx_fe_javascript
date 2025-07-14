@@ -227,7 +227,7 @@ async function syncQuotes() {
     quotes.push(...newQuotes);
     saveQuotes();
     populateCategories();
-    notifyUser("New quotes have been synced from the server.");
+    notifyUser("Quotes synced with server!");
   }
 }
 
